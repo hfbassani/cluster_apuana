@@ -93,12 +93,15 @@ sudo cp -r arquivos/custom-ebs /opt/easybuild/custom-ebs
 #### Instalar Softwares Pelo Easybuild
 - Python 3.10.8, 3.9.6 e 3.8.6
 - Xvfb 21.1.6
+- freeglut 3.2.2
 ```bash
 eb --configfile=/opt/easybuild/eb.cf UnZip-6.0.eb -r
-eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/python-ebs/Python-3.10.8-GCCcore-12.2.0.eb -r
-eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/python-ebs/Python-3.9.6-GCCcore-12.2.0.eb -r
-eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/python-ebs/Python-3.8.6-GCCcore-12.2.0.eb -r
+eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/Python-3.10.8-GCCcore-12.2.0.eb -r
+eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/Python-3.9.6-GCCcore-12.2.0.eb -r
+eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/Python-3.8.6-GCCcore-12.2.0.eb -r
 eb --configfile=/opt/easybuild/eb.cf Xvfb-21.1.6-GCCcore-12.2.0.eb -r
+sudo wget https://github.com/FreeGLUTProject/freeglut/releases/download/v3.2.2/freeglut-3.2.2.tar.gz -P /opt/easybuild/custom-ebs
+eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/freeglut-3.2.2-GCCcore-12.2.0.eb -r
 ```
 
 ## Configurar Modules
@@ -108,39 +111,42 @@ sudo mkdir -p /opt/modulefiles/Core/Python /opt/modulefiles/Core/Xvfb
 sudo ln -s /opt/easybuild/modules/all/Python/3.10.8-GCCcore-12.2.0.lua /opt/modulefiles/Core/Python/
 sudo ln -s /opt/easybuild/modules/all/Python/3.9.6-GCCcore-12.2.0.lua /opt/modulefiles/Core/Python/
 sudo ln -s /opt/easybuild/modules/all/Python/3.8.6-GCCcore-12.2.0.lua /opt/modulefiles/Core/Python/
-sudo ln -s /opt/easybuild/modules/all/Xvfb/21.1.6-GCCcore-12.2.0.lua Xvfb/
+sudo ln -s /opt/easybuild/modules/all/Xvfb/21.1.6-GCCcore-12.2.0.lua /opt/modulefiles/Core/Xvfb/
 sudo mkdir -p /opt/modulefiles/Linux/Brotli /opt/modulefiles/Linux/Mesa /opt/modulefiles/Linux/X11 /opt/modulefiles/Linux/expat /opt/modulefiles/Linux/libdrm /opt/modulefiles/Linux/libpng /opt/modulefiles/Linux/ncurses /opt/modulefiles/Linux/xorg-macros /opt/modulefiles/Linux/GCCcore /opt/modulefiles/Linux/OpenSSL /opt/modulefiles/Linux/XZ /opt/modulefiles/Linux/fontconfig /opt/modulefiles/Linux/libffi /opt/modulefiles/Linux/libreadline /opt/modulefiles/Linux/nettle /opt/modulefiles/Linux/zlib /opt/modulefiles/Linux/GMP /opt/modulefiles/Linux/SQLite /opt/modulefiles/Linux/binutils /opt/modulefiles/Linux/freetype /opt/modulefiles/Linux/libglvnd /opt/modulefiles/Linux/libunwind /opt/modulefiles/Linux/pixman /opt/modulefiles/Linux/zstd /opt/modulefiles/Linux/LLVM /opt/modulefiles/Linux/Tcl /opt/modulefiles/Linux/bzip2 /opt/modulefiles/Linux/gzip /opt/modulefiles/Linux/libpciaccess /opt/modulefiles/Linux/lz4 /opt/modulefiles/Linux/util-linux
-sudo ln -s /opt/easybuild/modules/all/libffi/3.4.4-GCCcore-12.2.0.lua libffi/
-sudo ln -s /opt/easybuild/modules/all/libreadline/8.2-GCCcore-12.2.0.lua libreadline/
-sudo ln -s /opt/easybuild/modules/all/XZ/5.2.7-GCCcore-12.2.0.lua XZ/
-sudo ln -s /opt/easybuild/modules/all/OpenSSL/1.1.lua OpenSSL/
-sudo ln -s /opt/easybuild/modules/all/ncurses/6.3-GCCcore-12.2.0.lua ncurses/
-sudo ln -s /opt/easybuild/modules/all/bzip2/1.0.8-GCCcore-12.2.0.lua bzip2/
-sudo ln -s /opt/easybuild/modules/all/binutils/2.39-GCCcore-12.2.0.lua binutils/
-sudo ln -s /opt/easybuild/modules/all/GCCcore/12.2.0.lua GCCcore/
-sudo ln -s /opt/easybuild/modules/all/SQLite/3.39.4-GCCcore-12.2.0.lua SQLite/
-sudo ln -s /opt/easybuild/modules/all/GMP/6.2.1-GCCcore-12.2.0.lua GMP/
-sudo ln -s /opt/easybuild/modules/all/Tcl/8.6.12-GCCcore-12.2.0.lua Tcl/
-sudo ln -s /opt/easybuild/modules/all/zlib/1.2.12-GCCcore-12.2.0.lua zlib/
-sudo ln -s /opt/easybuild/modules/all/nettle/3.8.1-GCCcore-12.2.0.lua nettle/
-sudo ln -s /opt/easybuild/modules/all/X11/20221110-GCCcore-12.2.0.lua X11/
-sudo ln -s /opt/easybuild/modules/all/pixman/0.42.2-GCCcore-12.2.0.lua pixman/
-sudo ln -s /opt/easybuild/modules/all/libdrm/2.4.114-GCCcore-12.2.0.lua libdrm/
-sudo ln -s /opt/easybuild/modules/all/libunwind/1.6.2-GCCcore-12.2.0.lua libunwind/
-sudo ln -s /opt/easybuild/modules/all/Mesa/22.2.4-GCCcore-12.2.0.lua Mesa/
-sudo ln -s /opt/easybuild/modules/all/xorg-macros/1.19.3-GCCcore-12.2.0.lua xorg-macros/
-sudo ln -s /opt/easybuild/modules/all/freetype/2.12.1-GCCcore-12.2.0.lua freetype/
-sudo ln -s /opt/easybuild/modules/all/libglvnd/1.6.0-GCCcore-12.2.0.lua libglvnd/
-sudo ln -s /opt/easybuild/modules/all/libpciaccess/0.17-GCCcore-12.2.0.lua libpciaccess/
-sudo ln -s /opt/easybuild/modules/all/fontconfig/2.14.1-GCCcore-12.2.0.lua fontconfig/
-sudo ln -s /opt/easybuild/modules/all/LLVM/15.0.5-GCCcore-12.2.0.lua LLVM/
-sudo ln -s /opt/easybuild/modules/all/zstd/1.5.2-GCCcore-12.2.0.lua zstd/
-sudo ln -s /opt/easybuild/modules/all/lz4/1.9.4-GCCcore-12.2.0.lua lz4/
-sudo ln -s /opt/easybuild/modules/all/gzip/1.12-GCCcore-12.2.0.lua gzip/
-sudo ln -s /opt/easybuild/modules/all/libpng/1.6.38-GCCcore-12.2.0.lua libpng/
-sudo ln -s /opt/easybuild/modules/all/util-linux/2.38.1-GCCcore-12.2.0.lua util-linux/
-sudo ln -s /opt/easybuild/modules/all/Brotli/1.0.9-GCCcore-12.2.0.lua Brotli/
-sudo ln -s /opt/easybuild/modules/all/expat/2.4.9-GCCcore-12.2.0.lua expat/
+sudo ln -s /opt/easybuild/modules/all/libffi/3.4.4-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libffi/
+sudo ln -s /opt/easybuild/modules/all/libreadline/8.2-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libreadline/
+sudo ln -s /opt/easybuild/modules/all/XZ/5.2.7-GCCcore-12.2.0.lua /opt/modulefiles/Linux/XZ/
+sudo ln -s /opt/easybuild/modules/all/OpenSSL/1.1.lua /opt/modulefiles/Linux/OpenSSL/
+sudo ln -s /opt/easybuild/modules/all/ncurses/6.3-GCCcore-12.2.0.lua /opt/modulefiles/Linux/ncurses/
+sudo ln -s /opt/easybuild/modules/all/bzip2/1.0.8-GCCcore-12.2.0.lua /opt/modulefiles/Linux/bzip2/
+sudo ln -s /opt/easybuild/modules/all/binutils/2.39-GCCcore-12.2.0.lua /opt/modulefiles/Linux/binutils/
+sudo ln -s /opt/easybuild/modules/all/GCCcore/12.2.0.lua /opt/modulefiles/Linux/GCCcore/
+sudo ln -s /opt/easybuild/modules/all/SQLite/3.39.4-GCCcore-12.2.0.lua /opt/modulefiles/Linux/SQLite/
+sudo ln -s /opt/easybuild/modules/all/GMP/6.2.1-GCCcore-12.2.0.lua /opt/modulefiles/Linux/GMP/
+sudo ln -s /opt/easybuild/modules/all/Tcl/8.6.12-GCCcore-12.2.0.lua /opt/modulefiles/Linux/Tcl/
+sudo ln -s /opt/easybuild/modules/all/zlib/1.2.12-GCCcore-12.2.0.lua /opt/modulefiles/Linux/zlib/
+sudo ln -s /opt/easybuild/modules/all/nettle/3.8.1-GCCcore-12.2.0.lua /opt/modulefiles/Linux/nettle/
+sudo ln -s /opt/easybuild/modules/all/X11/20221110-GCCcore-12.2.0.lua /opt/modulefiles/Linux/X11/
+sudo ln -s /opt/easybuild/modules/all/pixman/0.42.2-GCCcore-12.2.0.lua /opt/modulefiles/Linux/pixman/
+sudo ln -s /opt/easybuild/modules/all/libdrm/2.4.114-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libdrm/
+sudo ln -s /opt/easybuild/modules/all/libunwind/1.6.2-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libunwind/
+sudo ln -s /opt/easybuild/modules/all/Mesa/22.2.4-GCCcore-12.2.0.lua /opt/modulefiles/Linux/Mesa/
+sudo ln -s /opt/easybuild/modules/all/xorg-macros/1.19.3-GCCcore-12.2.0.lua /opt/modulefiles/Linux/xorg-macros/
+sudo ln -s /opt/easybuild/modules/all/freetype/2.12.1-GCCcore-12.2.0.lua /opt/modulefiles/Linux/freetype/
+sudo ln -s /opt/easybuild/modules/all/libglvnd/1.6.0-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libglvnd/
+sudo ln -s /opt/easybuild/modules/all/libpciaccess/0.17-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libpciaccess/
+sudo ln -s /opt/easybuild/modules/all/fontconfig/2.14.1-GCCcore-12.2.0.lua /opt/modulefiles/Linux/fontconfig/
+sudo ln -s /opt/easybuild/modules/all/LLVM/15.0.5-GCCcore-12.2.0.lua /opt/modulefiles/Linux/LLVM/
+sudo ln -s /opt/easybuild/modules/all/zstd/1.5.2-GCCcore-12.2.0.lua /opt/modulefiles/Linux/zstd/
+sudo ln -s /opt/easybuild/modules/all/lz4/1.9.4-GCCcore-12.2.0.lua /opt/modulefiles/Linux/lz4/
+sudo ln -s /opt/easybuild/modules/all/gzip/1.12-GCCcore-12.2.0.lua /opt/modulefiles/Linux/gzip/
+sudo ln -s /opt/easybuild/modules/all/libpng/1.6.38-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libpng/
+sudo ln -s /opt/easybuild/modules/all/util-linux/2.38.1-GCCcore-12.2.0.lua /opt/modulefiles/Linux/util-linux/
+sudo ln -s /opt/easybuild/modules/all/Brotli/1.0.9-GCCcore-12.2.0.lua /opt/modulefiles/Linux/Brotli/
+sudo ln -s /opt/easybuild/modules/all/expat/2.4.9-GCCcore-12.2.0.lua /opt/modulefiles/Linux/expat/
+sudo mkdir /opt/modulefiles/Core/freeglut
+sudo ln -s /opt/easybuild/modules/all/freeglut/3.2.2-GCCcore-12.2.0.lua /opt/modulefiles/Core/freeglut/
+sudo ln -s /opt/easybuild/modules/all/libGLU/9.0.2-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libGLU/
 ```
 #### Copiar configs do modules
 ```bash

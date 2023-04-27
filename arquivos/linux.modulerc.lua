@@ -29,4 +29,4 @@ hide_version("zstd/1.5.2-GCCcore-12.2.0")
 hide_version("Tcl/8.6.12-GCCcore-12.2.0")
 hide_version("gzip/1.12-GCCcore-12.2.0")
 hide_version("lz4/1.9.4-GCCcore-12.2.0")
-
+hide_version("libGLU/9.0.2-GCCcore-12.2.0")
