@@ -1,0 +1,1 @@
+0 */12 * * * /home/CIN/jcss4/dashboard_data/update_sheet.py >> /home/CIN/jcss4/dashboard_data/error_log.log 2>&1
