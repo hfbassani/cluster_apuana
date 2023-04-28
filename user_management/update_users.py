@@ -3,6 +3,7 @@ import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import time
 
 # The first step is to classify your uid as Admin. Thus, it is not necessary to use sudo to perform sacctmgr modifications
 # example: sudo sacctmgr add user jcss4 account=test_acc partition=long,short,test AdminLevel=Admin
@@ -10,7 +11,7 @@ import pandas as pd
 # define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 # add credentials to the account
-creds = ServiceAccountCredentials.from_json_keyfile_name('/path/to/keyfile/key.js', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('/path/to/keyfile/key.json', scope)
 # authorize the clientsheet
 client = gspread.authorize(creds)
 # create the sheet instance (obs.: follow the steps in  https://stackoverflow.com/questions/38949318/google-sheets-api-returns-the-caller-does-not-have-permission-when-using-serve/49965912#49965912)
@@ -20,8 +21,11 @@ worksheet_users = sheet.get_worksheet(0)
 # get current users in the user management spreadsheet
 worksheet_users_vals = worksheet_users.get_all_values()
 worksheet_users_vals = worksheet_users_vals[2:]
-current_users = [row[1].replace('@cin.ufpe.br','') for row in worksheet_users_vals]
-#print(current_users)
+current_users = []
+for row in worksheet_users_vals:
+	user = row[1].split('@')
+	current_users.append(user[0])
+print(current_users)
 
 # get current users in the slurm database
 current_users_slurmdbd = []
@@ -37,6 +41,7 @@ with os.popen("sacctmgr -nrp show User") as f:
 # verify if there are new users and add them to the slurm database
 new_users = list(set(current_users)-set(current_users_slurmdbd))
 if len(new_users)>0:
+	print("new_users = " + str(new_users))
 	for new_user in new_users:
 		# find user row
 		row_idx = current_users.index(new_user)
