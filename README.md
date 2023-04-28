@@ -32,10 +32,20 @@ sudo apt install nvidia-driver-525-server libnvidia-ml-dev
 - Foi fixado a versão 525
 - O pacote libnvidia-ml-dev é utilizado pelo slurm para dar suporte ao nvml
 
+## Sincronizar uids e gids
+```bash
+sudo addgroup -gid 133 munge
+sudo addgroup -gid 64030 slurm
+sudo adduser -u 129 munge --disabled-password --gecos "" -gid 133
+sudo adduser -u 64030 slurm --disabled-password --gecos "" -gid 64030
+```
+
 ## Instalar Munge
 ```bash
 sudo apt install munge libmunge-dev
 sudo cp arquivos/munge.key /etc/munge/munge.key
+sudo chown munge /etc/munge/munge.key
+sudo chmod 400 /etc/munge/munge.key
 sudo systemctl enable munge
 sudo systemctl start munge
 ```
