@@ -144,7 +144,7 @@ sudo ln -s /opt/easybuild/modules/all/libpng/1.6.38-GCCcore-12.2.0.lua /opt/modu
 sudo ln -s /opt/easybuild/modules/all/util-linux/2.38.1-GCCcore-12.2.0.lua /opt/modulefiles/Linux/util-linux/
 sudo ln -s /opt/easybuild/modules/all/Brotli/1.0.9-GCCcore-12.2.0.lua /opt/modulefiles/Linux/Brotli/
 sudo ln -s /opt/easybuild/modules/all/expat/2.4.9-GCCcore-12.2.0.lua /opt/modulefiles/Linux/expat/
-sudo mkdir /opt/modulefiles/Core/freeglut
+sudo mkdir /opt/modulefiles/Core/freeglut /opt/modulefiles/Linux/libGLU
 sudo ln -s /opt/easybuild/modules/all/freeglut/3.2.2-GCCcore-12.2.0.lua /opt/modulefiles/Core/freeglut/
 sudo ln -s /opt/easybuild/modules/all/libGLU/9.0.2-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libGLU/
 ```
