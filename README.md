@@ -160,7 +160,7 @@ Para armazenar associações no Slurm é necessário utilizar uma bases de dados
 
 ## MySQL server 
 
-### Instalar e iniciar o MySQL server
+Instalar e iniciar o MySQL server
 
 ```bash
 sudo apt-get install libmysqlclient-dev mysql-server
@@ -169,13 +169,13 @@ sudo service mysql enable
 sudo service mysql status
 ```
 
-### Depois faça o login no prompt de comando do MySQL
+Fazer o login no prompt de comando do MySQL
 
 ```bash
 sudo mysql
 ```
 
-### Configure o acesso do slurm à base de dados
+Configurar o acesso do slurm à base de dados
 
 ```
 create database slurm_acct_db;
@@ -186,7 +186,7 @@ grant all privileges on slurm_acct_db.* to 'slurm'@'localhost';
 flush privileges;
 ```
 
-### Verificar suporte ao InnoDB e se a base de dados do slurm (slurm_acct_db) foi criada
+Verificar suporte ao InnoDB e se a base de dados do slurm (slurm_acct_db) foi criada
 
 ```bash
 show engines;
@@ -196,7 +196,7 @@ quit
 
 ## Configuração do dameon SlurmDBD 
 
-### Criar usuários ‘munge’ e ‘slurm’ e sincronizar os respectivos uids e gids. Após instalar o Munge, deve-se configurar os seguintes arquivos e permissões.
+Criar usuários ‘munge’ e ‘slurm’ e sincronizar os respectivos uids e gids. Após instalar o Munge, deve-se configurar os seguintes arquivos e permissões.
 
 ```bash
 slurm-22.05.3/etc/slurmdbd.service para o /etc/systemd/system
@@ -208,7 +208,7 @@ sudo touch /var/log/slurm/slurmdbd.log
 sudo chown slurm: /var/log/slurm/slurmdbd.log
 ```
 
-## Iniciar slurmdbd
+Iniciar slurmdbd
 ```bash
 systemctl start slurmdbd
 systemctl enable slurmdbd
