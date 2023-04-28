@@ -10,7 +10,7 @@ import pandas as pd
 # define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 # add credentials to the account
-creds = ServiceAccountCredentials.from_json_keyfile_name('/home/CIN/jcss4/log_jobs/cluster-jobcompletion-log-724376385825.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('/path/to/keyfile/key.js', scope)
 # authorize the clientsheet
 client = gspread.authorize(creds)
 # create the sheet instance (obs.: follow the steps in  https://stackoverflow.com/questions/38949318/google-sheets-api-returns-the-caller-does-not-have-permission-when-using-serve/49965912#49965912)
