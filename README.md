@@ -177,7 +177,7 @@ sudo mysql
 
 ### Configure o acesso do slurm à base de dados
 
-```bash
+```
 create database slurm_acct_db;
 create user 'slurm'@'localhost’;
 set password for 'slurm'@'localhost' = 'insert_passwd';
@@ -209,6 +209,8 @@ sudo chown slurm: /var/log/slurm/slurmdbd.log
 ```
 
 ## Iniciar slurmdbd
+```bash
 systemctl start slurmdbd
 systemctl enable slurmdbd
 sudo scontrol reconfigure
+```
