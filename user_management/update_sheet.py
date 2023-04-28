@@ -1,0 +1,82 @@
+import sys
+import os
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import pandas as pd
+
+# The first step is to classify your uid as Admin. Thus, it is not necessary to use sudo to perform sacctmgr modifications
+# example: sudo sacctmgr add user jcss4 account=test_acc partition=long,short,test AdminLevel=Admin
+
+# define the scope
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+# add credentials to the account
+creds = ServiceAccountCredentials.from_json_keyfile_name('/home/CIN/jcss4/log_jobs/cluster-jobcompletion-log-724376385825.json', scope)
+# authorize the clientsheet
+client = gspread.authorize(creds)
+# create the sheet instance (obs.: follow the steps in  https://stackoverflow.com/questions/38949318/google-sheets-api-returns-the-caller-does-not-have-permission-when-using-serve/49965912#49965912)
+sheet = client.open('Usuários com acesso ao cluster')
+worksheet_users = sheet.get_worksheet(0)
+
+# get current users in the user management spreadsheet
+worksheet_users_vals = worksheet_users.get_all_values()
+worksheet_users_vals = worksheet_users_vals[2:]
+current_users = [row[1].replace('@cin.ufpe.br','') for row in worksheet_users_vals]
+#print(current_users)
+
+# get current users in the slurm database
+current_users_slurmdbd = []
+with os.popen("sacctmgr -nrp show User") as f:
+	try:
+		for line in f:
+			new_line = line.replace('\n','')
+			new_line = new_line.split('|')
+			current_users_slurmdbd.append(new_line[0])
+	except:
+		print("G")
+
+# verify if there are new users and add them to the slurm database
+new_users = list(set(current_users)-set(current_users_slurmdbd))
+if len(new_users)>0:
+	for new_user in new_users:
+		# find user row
+		row_idx = current_users.index(new_user)
+		row = worksheet_users_vals[row_idx]
+		# add user to the database
+		#print("sacctmgr -i add user " + row[1] + " account=" + row[4] + " partition=" + row[5])
+		os.system("sacctmgr -i add user " + new_user + " account=" + row[4] + " partition=" + row[5])
+	# adjust associations
+	os.system("sacctmgr -i modify user set qos=singlegpu where partition=long")
+	os.system("sacctmgr -i modify user set qos=doublegpu where partition=short")
+	os.system("sacctmgr -i modify user set qos=normal where partition=test")
+
+else:
+	print('no new users to add')
+'''
+# get job data
+log_dict = dict([])
+cols = []
+firstLine = True
+with os.popen('sacct --allusers --parsable --delimiter='','' --format State,JobID,Start,Elapsed,End,Partition --starttime 1970-01-01T0:00:00') as f:
+	try:
+		for line in f:
+			new_line = line.replace('\n','')
+			new_line = new_line.split(',')
+			#print(new_line)
+			#print(len(new_line))
+			for col in range(len(new_line)-1):
+				if firstLine: # initialize cols
+					log_dict[new_line[col]] = []
+					cols.append(new_line[col])
+				else:
+					log_dict[cols[col]].append(new_line[col])
+			firstLine=False
+	except:
+		print("G")
+
+# update the worksheet
+log_df = pd.DataFrame.from_dict(log_dict)
+worksheet = sheet.get_worksheet(0)
+worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
+
+print('log worksheet updated!')
+'''
