@@ -199,7 +199,7 @@ quit
 Criar usuários ‘munge’ e ‘slurm’ e sincronizar os respectivos uids e gids. Após instalar o Munge, deve-se configurar os seguintes arquivos e permissões.
 
 ```bash
-slurm-22.05.3/etc/slurmdbd.service para o /etc/systemd/system
+sudo cp /slurm-22.05.3/etc/slurmdbd.service /etc/systemd/system
 sudo cp arquivos/slurmdbd.conf /usr/local/etc/slurmdbd.conf
 sudo chown slurm: /usr/local/etc/slurmdbd.conf
 sudo chmod 600 /usr/local/etc/slurmdbd.conf
