@@ -27,9 +27,9 @@ sudo apt upgrade
 ## Instalar Drivers Nvidia
 Nós `cluster-node[1-5]` possuem placas de vídeo `Nvidia RTX 3090`, Nós `cluster-node[6-10]` possuem placas de vídeo `Nvidia A100`.
 ```bash
-sudo apt install nvidia-driver-530 libnvidia-ml-dev
+sudo apt install nvidia-driver-525-server libnvidia-ml-dev
 ```
-- Foi fixado a versão 530
+- Foi fixado a versão 525
 - O pacote libnvidia-ml-dev é utilizado pelo slurm para dar suporte ao nvml
 
 ## Instalar Munge
@@ -51,7 +51,7 @@ tar -xvf slurm-22.05.3.tar.bz2
 cd slurm-22.05.3
 ./configure
 sudo make install -j 60
-sudo cp slurmd.service /etc/systemd/system/slurmd.service
+sudo cp etc/slurmd.service /etc/systemd/system/slurmd.service
 ```
 #### Copiar configs e habilitar serviço
 ```bash
