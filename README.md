@@ -44,7 +44,7 @@ sudo useradd -s /usr/sbin/nologin --home /nonexistent -M -u 64030 -g 64030 slurm
 ```bash
 sudo apt install munge libmunge-dev
 sudo cp arquivos/munge.key /etc/munge/munge.key
-sudo chown munge /etc/munge/munge.key
+chown munge: /etc/munge/munge.key
 sudo chmod 400 /etc/munge/munge.key
 sudo systemctl enable munge
 sudo systemctl start munge
