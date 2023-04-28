@@ -36,8 +36,8 @@ sudo apt install nvidia-driver-525-server libnvidia-ml-dev
 ```bash
 sudo addgroup -gid 133 munge
 sudo addgroup -gid 64030 slurm
-sudo adduser -u 129 munge --disabled-password --gecos "" -gid 133
-sudo adduser -u 64030 slurm --disabled-password --gecos "" -gid 64030
+sudo useradd -s /usr/sbin/nologin --home /nonexistent -M -u 129 -g 133 munge
+sudo useradd -s /usr/sbin/nologin --home /nonexistent -M -u 64030 -g 64030 slurm
 ```
 
 ## Instalar Munge
@@ -53,8 +53,6 @@ sudo systemctl start munge
 ## Instalar Slurm
 ```bash
 sudo apt install build-essential libhwloc-dev libdbus-1-dev libssl-dev libibverbs-dev
-sudo addgroup --gid 64030 slurm
-sudo useradd -s /usr/sbin/nologin --home /nonexistent -M -u 64030 -g 64030 slurm
 sudo mkdir /tmp/slurmd
 wget https://download.schedmd.com/slurm/slurm-22.05.3.tar.bz2
 tar -xvf slurm-22.05.3.tar.bz2
