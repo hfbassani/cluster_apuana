@@ -29,7 +29,7 @@ Nós `cluster-node[1-5]` possuem placas de vídeo `Nvidia RTX 3090`, Nós `clust
 ```bash
 sudo apt install nvidia-driver-530 libnvidia-ml-dev
 ```
-- Foi fixado a versão 525
+- Foi fixada a versão 530
 - O pacote libnvidia-ml-dev é utilizado pelo slurm para dar suporte ao nvml
 
 ## Sincronizar uids e gids
