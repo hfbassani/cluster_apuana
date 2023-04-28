@@ -154,3 +154,61 @@ sudo cp arquivos/lmod-core.modulerc.lua /opt/lmod/lmod/modulefiles/Core/.moduler
 sudo cp arquivos/core.modulerc.lua /opt/modulefiles/Core/.modulerc.lua
 sudo cp arquivos/linux.modulerc.lua /opt/modulefiles/Linux/.modulerc.lua
 ```
+
+# Instalação do nodo de base de dados do Slurm
+Para armazenar associações no Slurm é necessário utilizar uma bases de dados. Nesta seção serão apresentados os passos necessários para instalar e configurar o MySQL server e o Daemon Slurmdbd corretamente.
+
+## MySQL server 
+
+###Instalar e iniciar o MySQL server
+
+```bash
+sudo apt-get install libmysqlclient-dev mysql-server
+sudo service mysql start
+sudo service mysql enable
+sudo service mysql status
+```
+
+###Depois faça o login no prompt de comando do MySQL
+
+```bash
+sudo mysql
+```
+
+###Configure o acesso do slurm à base de dados
+
+```bash
+create database slurm_acct_db;
+create user 'slurm'@'localhost’;
+set password for 'slurm'@'localhost' = 'insert_passwd';
+grant usage on *.* to 'slurm'@'localhost';
+grant all privileges on slurm_acct_db.* to 'slurm'@'localhost';
+flush privileges;
+```
+
+###Verificar suporte ao InnoDB e se a base de dados do slurm (slurm_acct_db) foi criada
+
+```bash
+show engines;
+show databases;
+quit
+```
+
+##Configuração do dameon SlurmDBD 
+
+###Criar usuários ‘munge’ e ‘slurm’ e sincronizar os respectivos uids e gids. Após instalar o Munge, deve-se configurar os seguintes arquivos e permissões.
+
+```bash
+slurm-22.05.3/etc/slurmdbd.service para o /etc/systemd/system
+sudo cp arquivos/slurmdbd.conf /usr/local/etc/slurmdbd.conf
+sudo chown slurm: /usr/local/etc/slurmdbd.conf
+sudo chmod 600 /usr/local/etc/slurmdbd.conf
+sudo mkdir /var/log/slurm
+sudo touch /var/log/slurm/slurmdbd.log
+sudo chown slurm: /var/log/slurm/slurmdbd.log
+```
+
+##Iniciar slurmdbd
+systemctl start slurmdbd
+systemctl enable slurmdbd
+sudo scontrol reconfigure
