@@ -27,7 +27,7 @@ sudo apt upgrade
 ## Instalar Drivers Nvidia
 Nós `cluster-node[1-5]` possuem placas de vídeo `Nvidia RTX 3090`, Nós `cluster-node[6-10]` possuem placas de vídeo `Nvidia A100`.
 ```bash
-sudo apt install nvidia-driver-525-server libnvidia-ml-dev
+sudo apt install nvidia-driver-530 libnvidia-ml-dev
 ```
 - Foi fixado a versão 525
 - O pacote libnvidia-ml-dev é utilizado pelo slurm para dar suporte ao nvml
