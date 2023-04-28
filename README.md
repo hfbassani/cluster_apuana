@@ -57,7 +57,7 @@ sudo cp etc/slurmd.service /etc/systemd/system/slurmd.service
 ```bash
 sudo cp arquivos/slurm.conf /usr/local/etc/slurm.conf
 sudo cp arquivos/gres.conf /usr/local/etc/gres.conf
-sudo cp arquivos/cgroups.conf /usr/local/etc/cgroups.conf
+sudo cp arquivos/cgroup.conf /usr/local/etc/cgroup.conf
 sudo systemctl enable slurmd
 sudo systemctl start slurmd
 ```
