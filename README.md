@@ -165,7 +165,7 @@ sudo cp arquivos/linux.modulerc.lua /opt/modulefiles/Linux/.modulerc.lua
 ```
 
 # Instalação do nodo de base de dados do Slurm
-Para armazenar associações no Slurm é necessário utilizar uma bases de dados. Nesta seção serão apresentados os passos necessários para instalar e configurar o MySQL server e o Daemon Slurmdbd corretamente.
+Para armazenar associações no Slurm é necessário utilizar uma bases de dados. Nesta seção serão apresentados os passos necessários para instalar e configurar o MySQL server e o Daemon Slurmdbd corretamente. (Obs.: Utilizou-se localhost porque os nós de controle e base de dados estão no mesmo servidor)
 
 ## MySQL server 
 
