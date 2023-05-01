@@ -27,15 +27,25 @@ sudo apt upgrade
 ## Instalar Drivers Nvidia
 Nós `cluster-node[1-5]` possuem placas de vídeo `Nvidia RTX 3090`, Nós `cluster-node[6-10]` possuem placas de vídeo `Nvidia A100`.
 ```bash
-sudo apt install nvidia-driver-525-server libnvidia-ml-dev
+sudo apt install nvidia-driver-530 libnvidia-ml-dev
 ```
-- Foi fixado a versão 525
+- Foi fixada a versão 530
 - O pacote libnvidia-ml-dev é utilizado pelo slurm para dar suporte ao nvml
+
+## Sincronizar uids e gids
+```bash
+sudo addgroup -gid 133 munge
+sudo addgroup -gid 64030 slurm
+sudo useradd -s /usr/sbin/nologin --home /nonexistent -M -u 129 -g 133 munge
+sudo useradd -s /usr/sbin/nologin --home /nonexistent -M -u 64030 -g 64030 slurm
+```
 
 ## Instalar Munge
 ```bash
 sudo apt install munge libmunge-dev
 sudo cp arquivos/munge.key /etc/munge/munge.key
+chown munge: /etc/munge/munge.key
+sudo chmod 400 /etc/munge/munge.key
 sudo systemctl enable munge
 sudo systemctl start munge
 ```
@@ -43,23 +53,22 @@ sudo systemctl start munge
 ## Instalar Slurm
 ```bash
 sudo apt install build-essential libhwloc-dev libdbus-1-dev libssl-dev libibverbs-dev
-sudo addgroup --gid 64030 slurm
-sudo useradd -s /usr/sbin/nologin --home /nonexistent -M -u 64030 -g 64030 slurm
 sudo mkdir /tmp/slurmd
 wget https://download.schedmd.com/slurm/slurm-22.05.3.tar.bz2
 tar -xvf slurm-22.05.3.tar.bz2
 cd slurm-22.05.3
 ./configure
 sudo make install -j 60
-sudo cp slurmd.service /etc/systemd/system/slurmd.service
+sudo cp etc/slurmd.service /etc/systemd/system/slurmd.service
 ```
 #### Copiar configs e habilitar serviço
 ```bash
 sudo cp arquivos/slurm.conf /usr/local/etc/slurm.conf
 sudo cp arquivos/gres.conf /usr/local/etc/gres.conf
-sudo cp arquivos/cgroups.conf /usr/local/etc/cgroups.conf
+sudo cp arquivos/cgroup.conf /usr/local/etc/cgroup.conf
 sudo systemctl enable slurmd
 sudo systemctl start slurmd
+sudo systemctl restart slurmd
 ```
 
 ## Instalar Lmod
@@ -156,7 +165,7 @@ sudo cp arquivos/linux.modulerc.lua /opt/modulefiles/Linux/.modulerc.lua
 ```
 
 # Instalação do nodo de base de dados do Slurm
-Para armazenar associações no Slurm é necessário utilizar uma bases de dados. Nesta seção serão apresentados os passos necessários para instalar e configurar o MySQL server e o Daemon Slurmdbd corretamente.
+Para armazenar associações no Slurm é necessário utilizar uma bases de dados. Nesta seção serão apresentados os passos necessários para instalar e configurar o MySQL server e o Daemon Slurmdbd corretamente. (Obs.: Utilizou-se localhost porque os nós de controle e base de dados estão no mesmo servidor)
 
 ## MySQL server 
 
