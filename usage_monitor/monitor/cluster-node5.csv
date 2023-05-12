@@ -1,0 +1,3 @@
+,index, name, temperature.gpu, memory.used [MiB],hostname,time
+0,0, NVIDIA GeForce RTX 3090, 31, 1 MiB,cluster-node5,2023-05-11T21:40:04
+1,1, NVIDIA GeForce RTX 3090, 29, 1 MiB,cluster-node5,2023-05-11T21:40:04

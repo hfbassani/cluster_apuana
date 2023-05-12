@@ -1,0 +1,2 @@
+,index, name, temperature.gpu, memory.used [MiB],hostname,time
+0,0, NVIDIA A100 80GB PCIe, 32, 0 MiB,cluster-node10,2023-05-11T21:40:04
