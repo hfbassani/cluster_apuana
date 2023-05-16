@@ -1,8 +1,32 @@
 import sys
 import os
 import gspread
+from datetime import datetime, timedelta
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+
+def time_to_seconds(time_str):
+        # Check if the time string contains days
+        if '-' in time_str:
+                # Split the time string into days, hours, minutes, and seconds
+                parts = time_str.split('-')
+                days = int(parts[0])
+                time_parts = parts[1].split(':')
+        else:
+                # No days, split the time string directly into hours, minutes, and seconds
+                days = 0
+                time_parts = time_str.split(':')
+
+        hours = int(time_parts[0])
+        minutes = int(time_parts[1])
+        seconds = int(time_parts[2])
+        # Create a timedelta object with the given time components
+        delta = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+        # Get the total number of seconds from the timedelta object
+        total_seconds = float(delta.total_seconds())
+
+        return total_seconds
+
 
 # define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
@@ -50,7 +74,11 @@ with os.popen('sacct --allusers --parsable --delimiter='','' --format State,JobI
 					#print(this_val)
 					if cols[col] == 'ReqMem':
 						if 'M' in this_val: # convert from MB to GB
-							this_val = str(float(this_val.replace('M',''))/1000) + 'G'
+							this_val = str(float(this_val.replace('M',''))/1000)
+						# remove the G
+						this_val = this_val.replace('G','')
+					if cols[col] == 'Elapsed': # convert Elapsed time to seconds
+						this_val = time_to_seconds(this_val)
 					log_dict[cols[col]].append(this_val)
 
 			#check if gpu data is missing
@@ -62,11 +90,17 @@ with os.popen('sacct --allusers --parsable --delimiter='','' --format State,JobI
 	except:
 		print("G")
 
-# update the worksheet
+# prepare the dataset
 log_df = pd.DataFrame.from_dict(log_dict)
-# clearn log_df(remove duplicates)
+# clean log_df(remove duplicates)
 log_df['Partition'] = log_df['Partition'].replace('', pd.NA)
 log_df = log_df.dropna(subset=['Partition'])
+# Replace blank spaces with zero in the 'ReqGPU' column
+log_df['ReqGPU'] = log_df['ReqGPU'].replace('', 0)
+log_df['ReqGPU'] = log_df['ReqGPU'].astype(int)
+# Rename ReqMem
+log_df.rename(columns={'ReqMem': 'ReqMem (GB)'}, inplace=True)
+# update the worksheet
 worksheet = sheet.get_worksheet(0)
 worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
 
