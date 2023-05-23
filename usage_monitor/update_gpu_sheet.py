@@ -2,13 +2,13 @@
 #- Schedule the synchronized execution of this script through crontab on each host (cluster-node[1-10]).
 #- Currently, cluster-node1 is the central node that aggregates information from each node.
 
-
 import sys
 import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import time
+from datetime import datetime, timedelta
 # define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 # add credentials to the account
@@ -52,7 +52,7 @@ with os.popen('nvidia-smi --format=csv --query-gpu=index,name,temperature.gpu,me
 	except:
 		print("G")
 
-filepath = '/home/CIN/user_id/usage_monitor/monitor/'
+filepath = '/home/CIN/jcss4/usage_monitor/monitor/'
 log_df = pd.DataFrame.from_dict(log_dict)
 log_df.to_csv(filepath + hostname + ".csv")
 print('gpu state saved!')
@@ -66,13 +66,20 @@ if hostname=='cluster-node1':
 	for node in range(2,n_nodes+1):
 		node_df = pd.read_csv(filepath + "cluster-node" + str(node) + ".csv")
 		node_df = node_df.drop(node_df.columns[0], axis=1)
-		print(node_df)
+		#print(node_df)
 		log_df = pd.concat([log_df, node_df], axis=0, ignore_index=True)
 	# update the worksheet
 	#print(log_df)
 	worksheet = sheet.get_worksheet(1)
 	# append new data to the end of the file
 	df = pd.DataFrame(worksheet.get_all_records())
+	# maintain data from the last week only
+	df['time'] = pd.to_datetime(df['time']) # Convert the 'time' column to datetime format
+	end_date = df['time'].max()  # Get the maximum date in the 'time' column
+	start_date = end_date - timedelta(days=6)  # Calculate the start date by subtracting 6 days
+	df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]  # apply the 'last week only' filter
+	df['time'] = df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S') # convert the column back to the string format
+	# update the worksheet
 	worksheet.update([df.columns.values.tolist()] + df.values.tolist() + log_df.values.tolist())
 	#worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
 	print('log worksheet updated!')
