@@ -23,7 +23,6 @@ n_nodes = 10
 hostname = os.popen('hostname').read()
 hostname = hostname.replace('\n','').replace('$','')
 
-
 # get job data
 log_dict = dict([])
 cols = []
@@ -59,6 +58,66 @@ print('gpu state saved!')
 
 # aggregate information through cluster-node1
 if hostname=='cluster-node1':
+	# update node_state sheet
+	worksheet = sheet.get_worksheet(3)
+	state_info_raw = os.popen('sinfo --Format=NodeHost,StateCompact').read()
+	# parser
+	state_info = state_info_raw.split('\n')
+	state_dict = dict([]) 
+	for line in state_info:
+		line_final = line.split(' ')
+		line_final = list(filter(None, line_final)) # remove blank spaces
+		if len(state_dict.keys()) == 0:
+			cols = line_final
+			state_dict[cols[0]] = []
+			state_dict[cols[1]] = []
+			state_dict['time'] = []
+		elif len(line_final) > 0: # if there are lements in this line...
+			state_dict[cols[0]].append(line_final[0])
+			state_dict[cols[1]].append(line_final[1])
+			state_dict['time'].append(now) 
+	state_df = pd.DataFrame.from_dict(state_dict)
+	# push updates
+	worksheet.update([state_df.columns.values.tolist()] + state_df.values.tolist())
+	print('state worksheet updated!')
+
+	# update the disk usage sheet
+	worksheet = sheet.get_worksheet(2)
+	# get disk usage data
+	output_disk = os.popen('df -H').read()
+	# Split the output into lines
+	lines = output_disk.split('\n')
+	# Get the header line
+	header = lines[0].split()
+	header.pop()
+	header.append('time') # append current time col
+	# Find the index of the Truenas03 machine
+	index = next(i for i, line in enumerate(lines[1:]) if line.startswith('truenas03.cin.ufpe.br:/mnt/TrueNAS03-pool01/singleDisks/apuana-homedirs'))
+	# Get the values for the Truenas03  line
+	values = lines[index + 1].split()
+	values.append(now) # add current time
+	# Create a DataFrame with the extracted columns
+	disk_df = pd.DataFrame([values], columns=header)
+	# append new data to the end of the file
+	df = pd.DataFrame(worksheet.get_all_records())
+	#print(df)
+	# maintain data from the last week only
+	df['time'] = pd.to_datetime(df['time']) # Convert the 'time' column to datetime format
+	end_date = df['time'].max()  # Get the maximum date in the 'time' column
+	start_date = end_date - timedelta(days=6)  # Calculate the start date by subtracting 6 days
+	df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]  # apply the 'last week only' filter
+	df['time'] = df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S') # convert the column back to the string format
+	# push updates
+	worksheet.update([df.columns.values.tolist()] + df.values.tolist() + disk_df.values.tolist())
+	#print(df)
+	#print(disk_df)
+
+	#worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
+	print('disk usage worksheet updated!')
+
+
+
+	# update gpu sheet
 	# sleep for 10s (this gives enough time for all nodes to send information to the monitor directory)
 	print('preparing to aggregate data...')
 	time.sleep(10)
@@ -79,7 +138,7 @@ if hostname=='cluster-node1':
 	start_date = end_date - timedelta(days=6)  # Calculate the start date by subtracting 6 days
 	df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]  # apply the 'last week only' filter
 	df['time'] = df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S') # convert the column back to the string format
-	# update the worksheet
+	# push updates
 	worksheet.update([df.columns.values.tolist()] + df.values.tolist() + log_df.values.tolist())
 	#worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
-	print('log worksheet updated!')
+	print('gpu worksheet updated!')
