@@ -100,7 +100,7 @@ sudo cp arquivos/eb.cf /opt/easybuild/eb.cf
 sudo cp -r arquivos/custom-ebs /opt/easybuild/custom-ebs
 ```
 #### Instalar Softwares Pelo Easybuild
-- Python 3.10.8, 3.9.6 e 3.8.6
+- Python 3.11.2, 3.10.8, 3.9.6 e 3.8.6
 - Xvfb 21.1.6
 - freeglut 3.2.2
 ```bash
@@ -111,6 +111,7 @@ eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/Python-3.8.6-GCCc
 eb --configfile=/opt/easybuild/eb.cf Xvfb-21.1.6-GCCcore-12.2.0.eb -r
 sudo wget https://github.com/FreeGLUTProject/freeglut/releases/download/v3.2.2/freeglut-3.2.2.tar.gz -P /opt/easybuild/custom-ebs
 eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/freeglut-3.2.2-GCCcore-12.2.0.eb -r
+eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/Python-3.11.2-GCCcore-12.2.0-bare.eb -r
 ```
 
 ## Configurar Modules
@@ -156,6 +157,7 @@ sudo ln -s /opt/easybuild/modules/all/expat/2.4.9-GCCcore-12.2.0.lua /opt/module
 sudo mkdir /opt/modulefiles/Core/freeglut /opt/modulefiles/Linux/libGLU
 sudo ln -s /opt/easybuild/modules/all/freeglut/3.2.2-GCCcore-12.2.0.lua /opt/modulefiles/Core/freeglut/
 sudo ln -s /opt/easybuild/modules/all/libGLU/9.0.2-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libGLU/
+sudo ln -s /opt/easybuild/modules/all/Python/3.11.2-GCCcore-12.2.0-bare.lua /opt/modulefiles/Core/Python/
 ```
 #### Copiar configs do modules
 ```bash
