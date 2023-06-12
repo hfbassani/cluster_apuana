@@ -111,6 +111,7 @@ eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/Python-3.8.6-GCCc
 eb --configfile=/opt/easybuild/eb.cf Xvfb-21.1.6-GCCcore-12.2.0.eb -r
 sudo wget https://github.com/FreeGLUTProject/freeglut/releases/download/v3.2.2/freeglut-3.2.2.tar.gz -P /opt/easybuild/custom-ebs
 eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/freeglut-3.2.2-GCCcore-12.2.0.eb -r
+eb --configfile=/opt/easybuild/eb.cf Python-3.11.2-GCCcore-12.2.0-bare.eb -r
 ```
 
 ## Configurar Modules
