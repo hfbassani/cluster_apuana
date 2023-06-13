@@ -111,6 +111,8 @@ eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/Python-3.8.6-GCCc
 eb --configfile=/opt/easybuild/eb.cf Xvfb-21.1.6-GCCcore-12.2.0.eb -r
 sudo wget https://github.com/FreeGLUTProject/freeglut/releases/download/v3.2.2/freeglut-3.2.2.tar.gz -P /opt/easybuild/custom-ebs
 eb --configfile=/opt/easybuild/eb.cf /opt/easybuild/custom-ebs/freeglut-3.2.2-GCCcore-12.2.0.eb -r
+eb --configfile=/opt/easybuild/eb.cf CUDA-11.8.0.eb -r
+eb --configfile=/opt/easybuild/eb.cf cuDNN-8.7.0.84-CUDA-11.8.0.eb -r
 ```
 
 ## Configurar Modules
@@ -156,6 +158,9 @@ sudo ln -s /opt/easybuild/modules/all/expat/2.4.9-GCCcore-12.2.0.lua /opt/module
 sudo mkdir /opt/modulefiles/Core/freeglut /opt/modulefiles/Linux/libGLU
 sudo ln -s /opt/easybuild/modules/all/freeglut/3.2.2-GCCcore-12.2.0.lua /opt/modulefiles/Core/freeglut/
 sudo ln -s /opt/easybuild/modules/all/libGLU/9.0.2-GCCcore-12.2.0.lua /opt/modulefiles/Linux/libGLU/
+sudo mkdir /opt/modulefiles/Core/CUDA /opt/modulefiles/Core/cuDNN
+sudo ln -s /opt/easybuild/modules/all/CUDA/11.8.0.lua /opt/modulefiles/Core/CUDA/
+sudo ln -s /opt/easybuild/modules/all/CUDA/11.8.0.lua /opt/modulefiles/Core/CUDA/
 ```
 #### Copiar configs do modules
 ```bash
