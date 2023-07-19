@@ -223,3 +223,8 @@ systemctl start slurmdbd
 systemctl enable slurmdbd
 sudo scontrol reconfigure
 ```
+
+## Configuração do Dashboard
+Os repositórios associados aos dados do Dashboard são:
+- /usage_monitor/ -> contém dados sobre gpu, espaço em disco e status dos nós
+- /dashboard_data/ -> contém dados sobre jobs
