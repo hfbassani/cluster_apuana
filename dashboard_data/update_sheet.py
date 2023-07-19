@@ -4,6 +4,7 @@ import gspread
 from datetime import datetime, timedelta
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import re
 
 def time_to_seconds(time_str):
         # Check if the time string contains days
@@ -31,7 +32,7 @@ def time_to_seconds(time_str):
 # define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 # add credentials to the account
-creds = ServiceAccountCredentials.from_json_keyfile_name('/path/to/key.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('/home/CIN/jcss4/log_jobs/cluster-jobcompletion-log-724376385825.json', scope)
 # authorize the clientsheet
 client = gspread.authorize(creds)
 # create the sheet instance
@@ -41,11 +42,16 @@ sheet = client.open('cluster_jobs_log')
 log_dict = dict([])
 cols = []
 firstLine = True
+
 # ReqTRES must always be the last column
 with os.popen('sacct --allusers --parsable --delimiter='','' --format State,JobID,Submit,Start,End,Elapsed,Partition,ReqCPUS,ReqMem,ReqTRES --starttime 1970-01-01T0:00:00') as f:
 	try:
 		for line in f:
+			#print(line)
 			new_line = line.replace('\n','')
+			# replace commas inside '[]' of job ids
+			new_line = re.sub(r'\[(.*?)\]', lambda m: m.group(0).replace(',', '_'), new_line)
+			# split
 			new_line = new_line.split(',')
 			# remove the billing,mem,cpu,node values resultant from the ReqTRES flag
 			new_line = [x for x in new_line if 'billing' not in x]
