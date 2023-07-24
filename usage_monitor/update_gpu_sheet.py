@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 # define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 # add credentials to the account
-creds = ServiceAccountCredentials.from_json_keyfile_name('/path/to/key.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('/home/CIN/jcss4/log_jobs/cluster-jobcompletion-log-724376385825.json', scope)
 # authorize the clientsheet
 client = gspread.authorize(creds)
 # create the sheet instance
@@ -72,7 +72,7 @@ if hostname=='cluster-node1':
 			state_dict[cols[0]] = []
 			state_dict[cols[1]] = []
 			state_dict['time'] = []
-		elif len(line_final) > 0: # if there are lements in this line...
+		elif len(line_final) > 0: # if there are elements in this line...
 			state_dict[cols[0]].append(line_final[0])
 			state_dict[cols[1]].append(line_final[1])
 			state_dict['time'].append(now) 
@@ -80,6 +80,29 @@ if hostname=='cluster-node1':
 	# push updates
 	worksheet.update([state_df.columns.values.tolist()] + state_df.values.tolist())
 	print('state worksheet updated!')
+
+	# update queue sheet
+	worksheet = sheet.get_worksheet(4)
+	squeue_raw = os.popen('squeue --Format=JobID,Name,UserName,State,TimeUsed,NodeList').read()
+	# parser
+	squeue = squeue_raw.split('\n')
+	squeue_dict = dict([])
+	for line in squeue:
+		line_final = line.split(' ')
+		line_final = list(filter(None, line_final)) # remove blank spaces
+		if len(squeue_dict.keys()) == 0:
+			cols = line_final
+			for col_idx in range(len(cols)):
+				squeue_dict[cols[col_idx]] = []
+			squeue_dict['time'] = []
+		elif len(line_final) > 0: # if there are elements in this line...
+			for col_idx in range(len(cols)):
+				squeue_dict[cols[col_idx]].append(line_final[col_idx])
+			squeue_dict['time'].append(now)
+	state_df = pd.DataFrame.from_dict(squeue_dict)
+	# push updates
+	worksheet.update([state_df.columns.values.tolist()] + state_df.values.tolist())
+	print('queue worksheet updated!')
 
 	# update the disk usage sheet
 	worksheet = sheet.get_worksheet(2)
