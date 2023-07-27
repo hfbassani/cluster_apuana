@@ -226,5 +226,5 @@ sudo scontrol reconfigure
 
 ## Configuração do Dashboard
 Os repositórios associados aos dados do Dashboard são:
-- /usage_monitor/ -> contém dados sobre gpu, espaço em disco e status dos nós
+- /usage_monitor/ -> contém dados sobre gpu, espaço em disco, status dos nós e fila de jobs
 - /dashboard_data/ -> contém dados sobre jobs
