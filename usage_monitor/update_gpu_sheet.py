@@ -9,6 +9,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import time
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 # define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 # add credentials to the account
@@ -71,13 +73,14 @@ if hostname=='cluster-node1':
 			cols = line_final
 			state_dict[cols[0]] = []
 			state_dict[cols[1]] = []
-			state_dict['time'] = []
+			state_dict['last_updated'] = []
 		elif len(line_final) > 0: # if there are elements in this line...
 			state_dict[cols[0]].append(line_final[0])
 			state_dict[cols[1]].append(line_final[1])
-			state_dict['time'].append(now) 
+			state_dict['last_updated'].append(now) 
 	state_df = pd.DataFrame.from_dict(state_dict)
 	# push updates
+	worksheet.clear()
 	worksheet.update([state_df.columns.values.tolist()] + state_df.values.tolist())
 	print('state worksheet updated!')
 
@@ -94,13 +97,14 @@ if hostname=='cluster-node1':
 			cols = line_final
 			for col_idx in range(len(cols)):
 				squeue_dict[cols[col_idx]] = []
-			squeue_dict['time'] = []
+			squeue_dict['last_updated'] = []
 		elif len(line_final) > 0: # if there are elements in this line...
 			for col_idx in range(len(cols)):
 				squeue_dict[cols[col_idx]].append(line_final[col_idx])
-			squeue_dict['time'].append(now)
+			squeue_dict['last_updated'].append(now)
 	state_df = pd.DataFrame.from_dict(squeue_dict)
 	# push updates
+	worksheet.clear()
 	worksheet.update([state_df.columns.values.tolist()] + state_df.values.tolist())
 	print('queue worksheet updated!')
 
@@ -124,17 +128,19 @@ if hostname=='cluster-node1':
 	# append new data to the end of the file
 	df = pd.DataFrame(worksheet.get_all_records())
 	#print(df)
-	# maintain data from the last week only
+	# maintain data from the last seven months 
 	df['time'] = pd.to_datetime(df['time']) # Convert the 'time' column to datetime format
 	end_date = df['time'].max()  # Get the maximum date in the 'time' column
-	start_date = end_date - timedelta(days=6)  # Calculate the start date by subtracting 6 days
+	start_date = end_date - relativedelta(months=7)  # Calculate the start date by subtracting 7 months
 	df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]  # apply the 'last week only' filter
 	df['time'] = df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S') # convert the column back to the string format
+	# Remove '%' character and transform 'Use%' values to float
+	#df['Use%'] = df['Use%'].str.rstrip('%').astype(float)
+	disk_df['Use%'] = disk_df['Use%'].str.rstrip('%').astype(float)
 	# push updates
 	worksheet.update([df.columns.values.tolist()] + df.values.tolist() + disk_df.values.tolist())
 	#print(df)
 	#print(disk_df)
-
 	#worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
 	print('disk usage worksheet updated!')
 
@@ -155,10 +161,10 @@ if hostname=='cluster-node1':
 	worksheet = sheet.get_worksheet(1)
 	# append new data to the end of the file
 	df = pd.DataFrame(worksheet.get_all_records())
-	# maintain data from the last week only
+	# maintain data from the last seven months 
 	df['time'] = pd.to_datetime(df['time']) # Convert the 'time' column to datetime format
 	end_date = df['time'].max()  # Get the maximum date in the 'time' column
-	start_date = end_date - timedelta(days=6)  # Calculate the start date by subtracting 6 days
+	start_date = end_date - relativedelta(months=7)  # Calculate the start date by subtracting 7 months
 	df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]  # apply the 'last week only' filter
 	df['time'] = df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S') # convert the column back to the string format
 	# push updates
