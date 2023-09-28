@@ -1,7 +1,8 @@
 import sys
 import os
 import gspread
-from datetime import datetime, timedelta
+#import datetime
+from datetime import datetime, timedelta, date
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import re
@@ -111,3 +112,37 @@ worksheet = sheet.get_worksheet(0)
 worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
 
 print('log worksheet updated!')
+
+# update utilization data
+# Define the start date as "04/25/23"
+start_date = date(2023, 4, 25)
+# Get the current date
+current_date = date.today()
+# Define a loop to iterate from start_date to current_date
+utilization_dict = dict([])
+utilization_dict['Date']=[]
+utilization_dict['Ocupação(%)'] = []
+utilization_dict['Ociosidade(%)'] = []
+utilization_dict['Indisponibilidade(%)'] = []
+while start_date <= current_date:
+	# Format and print the date in DD/MM/YY format
+	this_date = start_date.strftime("%m/%d/%y")
+	# get utilization data for the current day (i.e.: 'sreport cluster Utilization Start=04/25/23 End=04/25/23 -t Percent -P')
+	utilization_raw = os.popen('sreport cluster Utilization Start='+ this_date + ' End=' + this_date + ' -t Percent -P').read()
+	utilization_raw=utilization_raw.split('\n')
+	utilization_raw=utilization_raw[5].split('|')
+	#print(utilization_raw)
+	utilization_dict['Date'].append(this_date) #start_date)
+	utilization_dict['Ocupação(%)'].append(float(utilization_raw[1].replace('%','')))
+	utilization_dict['Ociosidade(%)'].append(float(utilization_raw[4].replace('%','')))
+	utilization_dict['Indisponibilidade(%)'].append(float(utilization_raw[2].replace('%','')))
+	# Increment the start_date by one day for the next iteration
+	start_date += timedelta(days=1)
+
+# prepare the dataset
+use_df = pd.DataFrame.from_dict(utilization_dict)
+# push utilization data
+worksheet = sheet.get_worksheet(5)
+worksheet.clear()
+worksheet.update([use_df.columns.values.tolist()] + use_df.values.tolist())
+print('utilization worksheet updated!')

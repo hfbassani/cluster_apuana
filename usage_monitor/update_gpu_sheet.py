@@ -119,7 +119,7 @@ if hostname=='cluster-node1':
 	header.pop()
 	header.append('time') # append current time col
 	# Find the index of the Truenas03 machine
-	index = next(i for i, line in enumerate(lines[1:]) if line.startswith('truenas03.cin.ufpe.br:/mnt/TrueNAS03-pool01/singleDisks/apuana-homedirs'))
+	index = next(i for i, line in enumerate(lines[1:]) if line.startswith('truenas'))
 	# Get the values for the Truenas03  line
 	values = lines[index + 1].split()
 	values.append(now) # add current time
