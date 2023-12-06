@@ -98,7 +98,14 @@ if hostname=='cluster-node1':
 			for col_idx in range(len(cols)):
 				squeue_dict[cols[col_idx]] = []
 			squeue_dict['last_updated'] = []
-		elif len(line_final) > 0: # if there are elements in this line...
+		elif len(line_final) > 0: # if there are elements in this line
+			if len(line_final[1])>= 20: # if the job's name contains at least 20 characters, the line.split(' ') func will not dectect >
+				line_final_aux = [line_final[0]]
+				line_to_split = line_final[1] # split this value which contains both the job and user names
+				line_final_aux.append(line_to_split[:20])   # add job name
+				line_final_aux.append(line_to_split[20:])  # add user name
+				line_final_aux.extend(line_final[2:])
+				line_final = line_final_aux
 			for col_idx in range(len(cols)):
 				squeue_dict[cols[col_idx]].append(line_final[col_idx])
 			squeue_dict['last_updated'].append(now)
