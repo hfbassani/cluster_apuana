@@ -44,13 +44,14 @@ with os.popen("sacctmgr -nrp show User") as f:
 	except:
 		print("G")
 
+print('current_users_slurmdbd', current_users_slurmdbd)
 # verify if there are new users and add them to the slurm database
 new_users = list(set(current_users)-set(current_users_slurmdbd))
 if len(new_users) > 0:
 	print("new_users = " + str(new_users))
 	
 	for new_user in new_users:
-		print('new_user', new_user)
+		print(new_user)
 
 		### previous row to add users ###
 		# find user row
