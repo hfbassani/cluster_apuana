@@ -37,6 +37,7 @@ print('current_users', current_users)
 current_users_slurmdbd = []
 with os.popen("sacctmgr -nrp show User") as f:
 	try:
+		print('f', f)
 		for line in f:
 			new_line = line.replace('\n','')
 			new_line = new_line.split('|')
