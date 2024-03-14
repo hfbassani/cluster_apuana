@@ -12,13 +12,13 @@ import time
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 
 # add credentials to the account
-creds = ServiceAccountCredentials.from_json_keyfile_name('/path/to/keyfile/key.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('key.json', scope)
 
 # authorize the clientsheet
 client = gspread.authorize(creds)
 
 # create the sheet instance (obs.: follow the steps in  https://stackoverflow.com/questions/38949318/google-sheets-api-returns-the-caller-does-not-have-permission-when-using-serve/49965912#49965912)
-sheet = client.open('Usuários com acesso ao cluster')
+sheet = client.open('planillha teste')
 
 worksheet_users = sheet.get_worksheet(0)
 
@@ -50,6 +50,7 @@ if len(new_users) > 0:
 	print("new_users = " + str(new_users))
 	
 	for new_user in new_users:
+		print('adding users: ', new_users)
 		### previous row to add users ###
 		# find user row
 		# row_idx = current_users.index(new_user)
@@ -61,7 +62,7 @@ if len(new_users) > 0:
 	# adjust associations
 	os.system("sacctmgr -i modify user set qos=singlegpu where partition=long")
 	os.system("sacctmgr -i modify user set qos=doublegpu where partition=short")
-	os.system("sacctmgr -i modify user set qos=normal where partition=test")
+	os.system("sacctmgr -i modify user set qos=normal where partition=test") ## para desenvolvedores
 
 else:
 	print('no new users to add')
