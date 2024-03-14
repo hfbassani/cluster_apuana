@@ -18,7 +18,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('key.json', scope)
 client = gspread.authorize(creds)
 
 # create the sheet instance (obs.: follow the steps in  https://stackoverflow.com/questions/38949318/google-sheets-api-returns-the-caller-does-not-have-permission-when-using-serve/49965912#49965912)
-sheet = client.open('planilha teste')
+sheet = client.open('Registro de Usuários Cluster Apuana  (respostas)')
 
 worksheet_users = sheet.get_worksheet(0)
 
@@ -51,6 +51,7 @@ if len(new_users) > 0:
 	
 	for new_user in new_users:
 		print('adding users: ', new_users)
+
 		### previous row to add users ###
 		# find user row
 		# row_idx = current_users.index(new_user)
