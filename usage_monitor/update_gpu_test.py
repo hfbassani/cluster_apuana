@@ -14,7 +14,7 @@ from dateutil.relativedelta import relativedelta
 # define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 # add credentials to the account
-creds = ServiceAccountCredentials.from_json_keyfile_name('/home/CIN/jcss4/log_jobs/cluster-jobcompletion-log-724376385825.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('../user_management/key.json', scope)
 # authorize the clientsheet
 client = gspread.authorize(creds)
 # create the sheet instance
