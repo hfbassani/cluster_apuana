@@ -25,6 +25,34 @@ n_nodes = 10
 hostname = os.popen('hostname').read()
 hostname = hostname.replace('\n','').replace('$','')
 
+log_dict = dict([])
+cols = []
+firstLine = True
+now = time.strftime("%Y-%m-%dT%H:%M:%S")
+
+with os.popen('nvidia-smi --format=csv --query-gpu=index,name,temperature.gpu,memory.used') as f:
+	try:
+		for line in f:
+			new_line = line.replace('\n','')
+			new_line = new_line.split(',')
+			if firstLine:
+				new_line.append('hostname')
+				new_line.append('time')
+			else:
+				new_line.append(hostname)
+				new_line.append(now)
+			#print(new_line)
+			#print(len(new_line))
+			for col in range(len(new_line)):
+				if firstLine: # initialize cols
+					log_dict[new_line[col]] = []
+					cols.append(new_line[col])
+				else:
+					log_dict[cols[col]].append(new_line[col])
+			firstLine=False
+	except:
+		print("G")
+
 
 def update_gpu_data(filepath, n_nodes):
     if hostname == 'cluster-node1':
@@ -32,7 +60,8 @@ def update_gpu_data(filepath, n_nodes):
         time.sleep(10)
         
         # Criar um DataFrame vazio para armazenar os dados
-        log_df = pd.DataFrame()
+        log_df = pd.DataFrame.from_dict(log_dict)
+        log_df.to_csv(filepath + "test.csv")
 
         # Agregar dados de cada nó
         for node in range(2, n_nodes+1):
