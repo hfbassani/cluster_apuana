@@ -56,31 +56,31 @@ with os.popen('nvidia-smi --format=csv --query-gpu=index,name,temperature.gpu,me
 
 def update_gpu_data(filepath, n_nodes):
     print('hostname:', hostname)
-    if hostname == 'cluster-node1':
-        print('preparing to aggregate data...')
-        time.sleep(10)
-        
-        # Criar um DataFrame vazio para armazenar os dados
-        log_df = pd.DataFrame.from_dict(log_dict)
-        log_df.to_csv(filepath + "test.csv")
 
-        # Agregar dados de cada nó
-        for node in range(2, n_nodes+1):
-            node_df = pd.read_csv(filepath + "gpu_log.csv")
-            node_df = node_df.drop(node_df.columns[0], axis=1)
-            log_df = pd.concat([log_df, node_df], axis=0, ignore_index=True)
+    print('preparing to aggregate data...')
+    time.sleep(10)
+    
+    # Criar um DataFrame vazio para armazenar os dados
+    log_df = pd.DataFrame.from_dict(log_dict)
+    log_df.to_csv(filepath + "test.csv")
 
-        # Filtrar os dados para manter apenas os últimos sete meses
-        log_df['time'] = pd.to_datetime(log_df['time'])
-        end_date = log_df['time'].max()
-        start_date = end_date - relativedelta(months=7)
-        log_df = log_df[(log_df['time'] >= start_date) & (log_df['time'] <= end_date)]
-        log_df['time'] = log_df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S')
+    # Agregar dados de cada nó
+    for node in range(2, n_nodes+1):
+        node_df = pd.read_csv(filepath + "gpu_log.csv")
+        node_df = node_df.drop(node_df.columns[0], axis=1)
+        log_df = pd.concat([log_df, node_df], axis=0, ignore_index=True)
 
-        # Escrever os dados em um arquivo CSV local
-        log_df.to_csv(filepath + "gpu_log.csv", index=False)
+    # Filtrar os dados para manter apenas os últimos sete meses
+    log_df['time'] = pd.to_datetime(log_df['time'])
+    end_date = log_df['time'].max()
+    start_date = end_date - relativedelta(months=7)
+    log_df = log_df[(log_df['time'] >= start_date) & (log_df['time'] <= end_date)]
+    log_df['time'] = log_df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S')
 
-        print('Data aggregated and saved to gpu_log.csv file.')
+    # Escrever os dados em um arquivo CSV local
+    log_df.to_csv(filepath + "gpu_log.csv", index=False)
+
+    print('Data aggregated and saved to gpu_log.csv file.')
 
 # Exemplo de uso:
 filepath = "/monitor/"
