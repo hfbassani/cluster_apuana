@@ -55,6 +55,7 @@ with os.popen('nvidia-smi --format=csv --query-gpu=index,name,temperature.gpu,me
 
 
 def update_gpu_data(filepath, n_nodes):
+    print('hostname:', hostname)
     if hostname == 'cluster-node1':
         print('preparing to aggregate data...')
         time.sleep(10)
