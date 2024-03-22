@@ -83,7 +83,7 @@ def update_gpu_data(filepath, n_nodes):
     print('Data aggregated and saved to gpu_log.csv file.')
 
 # Exemplo de uso:
-filepath = "/monitor/"
+filepath = "/cluster_apuana/usage_monitor/monitor"
 n_nodes = 10  # Por exemplo, o número total de nós no seu cluster
 
 update_gpu_data(filepath, n_nodes)
