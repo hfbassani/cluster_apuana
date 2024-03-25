@@ -41,8 +41,8 @@ with os.popen('nvidia-smi --format=csv --query-gpu=index,name,temperature.gpu,me
 			else:
 				new_line.append(hostname)
 				new_line.append(now)
-			#print(new_line)
-			#print(len(new_line))
+			print(new_line)
+			print(len(new_line))
 			for col in range(len(new_line)):
 				if firstLine: # initialize cols
 					log_dict[new_line[col]] = []
@@ -86,4 +86,4 @@ def update_gpu_data(filepath, n_nodes):
 filepath = "/cluster_apuana/usage_monitor/monitor"
 n_nodes = 10  # Por exemplo, o número total de nós no seu cluster
 
-update_gpu_data(filepath, n_nodes)
+# update_gpu_data(filepath, n_nodes)
