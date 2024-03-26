@@ -40,6 +40,7 @@ with open(output_csv, 'w', newline='') as csvfile:
             ssh_client = paramiko.SSHClient()
             ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh_client.connect(ip, username=usuario, password=senha)
+            print(f'Conectado ao nó {ip}')
             
             # Executar o comando nvidia-smi
             stdin, stdout, stderr = ssh_client.exec_command('nvidia-smi --format=csv,noheader --query-gpu=index,name,temperature.gpu,memory.used')
@@ -48,6 +49,7 @@ with open(output_csv, 'w', newline='') as csvfile:
             for line in stdout:
                 index, nome, temperatura, memoria = line.strip().split(',')
                 writer.writerow({'IP': ip, 'Index': index, 'Nome': nome, 'Temperatura_GPU': temperatura, 'Memoria_Usada': memoria})
+                print(line.strip())
             
             # Fechar a conexão SSH
             ssh_client.close()
