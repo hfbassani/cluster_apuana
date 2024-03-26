@@ -22,6 +22,9 @@ nodes_ips = [
 user = os.getenv('SSH_USER')  # get user from .env file
 password = os.getenv('SSH_PASSWORD')  # get password from .env file
 
+print(user)
+print(password)
+
 # .csv file name
 output_csv = './monitor/gpu_log.csv'
 
