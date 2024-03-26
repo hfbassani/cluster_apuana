@@ -32,9 +32,6 @@ with open(output_csv, 'a', newline='') as csvfile:
     fieldnames = ['index', 'name', 'temperature_gpu', 'memory_used', 'hostname', 'time']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     
-    # write headers
-    writer.writeheader()
-    
     # connect to each node with ssh 
     for ip in nodes_ips:
         try:
