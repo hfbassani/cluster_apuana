@@ -58,3 +58,5 @@ with open(output_csv, 'a', newline='') as csvfile:
                 writer.writerow({'index': index, 'name': name, 'temperature_gpu': temperature, 'memory_used': memory, 'hostname': hostname, 'time': time})
         except Exception as e:
             print(f'Erro ao conectar ao nó {ip}: {str(e)}')
+
+print('gpu state saved!')
