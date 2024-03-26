@@ -1,4 +1,4 @@
-import paramiko
+import subprocess
 import csv
 from dotenv import load_dotenv
 import os
@@ -36,22 +36,15 @@ with open(output_csv, 'w', newline='') as csvfile:
     # Conexão SSH e execução do comando nvidia-smi em cada nó
     for ip in nodos_ips:
         try:
-            # Conectar ao nó via SSH
-            ssh_client = paramiko.SSHClient()
-            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh_client.connect(ip, username=usuario, password=senha)
-            print(f'Conectado ao nó {ip}')
+            # Construir o comando SSH com o comando nvidia-smi
+            comando_ssh = f'sshpass -p "{senha}" ssh -o StrictHostKeyChecking=no {usuario}@{ip} "nvidia-smi --format=csv,noheader --query-gpu=index,name,temperature.gpu,memory.used"'
             
-            # Executar o comando nvidia-smi
-            stdin, stdout, stderr = ssh_client.exec_command('nvidia-smi --format=csv,noheader --query-gpu=index,name,temperature.gpu,memory.used')
+            # Executar o comando SSH e capturar a saída
+            saida = subprocess.check_output(comando_ssh, shell=True, stderr=subprocess.STDOUT).decode()
             
             # Ler a saída do comando e escrever no arquivo CSV
-            for line in stdout:
+            for line in saida.strip().split('\n'):
                 index, nome, temperatura, memoria = line.strip().split(',')
                 writer.writerow({'IP': ip, 'Index': index, 'Nome': nome, 'Temperatura_GPU': temperatura, 'Memoria_Usada': memoria})
-                print(line.strip())
-            
-            # Fechar a conexão SSH
-            ssh_client.close()
         except Exception as e:
             print(f'Erro ao conectar ao nó {ip}: {str(e)}')
