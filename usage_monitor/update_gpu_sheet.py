@@ -155,26 +155,26 @@ if hostname=='cluster-node1':
 
 	# update gpu sheet
 	# sleep for 10s (this gives enough time for all nodes to send information to the monitor directory)
-	print('preparing to aggregate data...')
-	time.sleep(10)
-	# aggregate node data
-	for node in range(2,n_nodes+1):
-		node_df = pd.read_csv(filepath + "cluster-node" + str(node) + ".csv")
-		node_df = node_df.drop(node_df.columns[0], axis=1)
-		#print(node_df)
-		log_df = pd.concat([log_df, node_df], axis=0, ignore_index=True)
-	# update the worksheet
-	#print(log_df)
-	worksheet = sheet.get_worksheet(1)
-	# append new data to the end of the file
-	df = pd.DataFrame(worksheet.get_all_records())
-	# maintain data from the last seven months 
-	df['time'] = pd.to_datetime(df['time']) # Convert the 'time' column to datetime format
-	end_date = df['time'].max()  # Get the maximum date in the 'time' column
-	start_date = end_date - relativedelta(months=7)  # Calculate the start date by subtracting 7 months
-	df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]  # apply the 'last week only' filter
-	df['time'] = df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S') # convert the column back to the string format
-	# push updates
-	worksheet.update([df.columns.values.tolist()] + df.values.tolist() + log_df.values.tolist())
-	#worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
-	print('gpu worksheet updated!')
+	# print('preparing to aggregate data...')
+	# time.sleep(10)
+	# # aggregate node data
+	# for node in range(2,n_nodes+1):
+	# 	node_df = pd.read_csv(filepath + "cluster-node" + str(node) + ".csv")
+	# 	node_df = node_df.drop(node_df.columns[0], axis=1)
+	# 	#print(node_df)
+	# 	log_df = pd.concat([log_df, node_df], axis=0, ignore_index=True)
+	# # update the worksheet
+	# #print(log_df)
+	# worksheet = sheet.get_worksheet(1)
+	# # append new data to the end of the file
+	# df = pd.DataFrame(worksheet.get_all_records())
+	# # maintain data from the last seven months 
+	# df['time'] = pd.to_datetime(df['time']) # Convert the 'time' column to datetime format
+	# end_date = df['time'].max()  # Get the maximum date in the 'time' column
+	# start_date = end_date - relativedelta(months=7)  # Calculate the start date by subtracting 7 months
+	# df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]  # apply the 'last week only' filter
+	# df['time'] = df['time'].dt.strftime('%Y-%m-%dT%H:%M:%S') # convert the column back to the string format
+	# # push updates
+	# worksheet.update([df.columns.values.tolist()] + df.values.tolist() + log_df.values.tolist())
+	# #worksheet.update([log_df.columns.values.tolist()] + log_df.values.tolist())
+	# print('gpu worksheet updated!')
