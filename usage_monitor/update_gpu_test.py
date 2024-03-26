@@ -87,3 +87,4 @@ filepath = "/cluster_apuana/usage_monitor/monitor"
 n_nodes = 10  # Por exemplo, o número total de nós no seu cluster
 
 # update_gpu_data(filepath, n_nodes)
+
