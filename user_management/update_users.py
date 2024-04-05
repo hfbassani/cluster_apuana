@@ -59,7 +59,7 @@ if len(new_users) > 0:
 		# add user to the database
 		# print("sacctmgr -i add user " + row[1] + " account=" + row[4] + " partition=" + row[5])
 
-		os.system("sacctmgr -i add user " + new_user + " account=test_acc partition=long,short")
+		os.system("sudo -A sacctmgr -i add user " + new_user + " account=test_acc partition=long,short")
 	# adjust associations
 	os.system("sacctmgr -i modify user set qos=singlegpu where partition=long")
 	os.system("sacctmgr -i modify user set qos=doublegpu where partition=short")
