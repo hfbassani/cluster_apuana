@@ -95,11 +95,31 @@ for ip in nodes_ips:
             
             print('disk state saved!')
 
+        ### get node state ### 
+        stdin, stdout, stderr = ssh_client.exec_command('sinfo --Format=NodeHost,StateCompact')
+        stdout.channel.recv_exit_status()
+        next(stdout)
+        time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+        for line in stdout:
+            fields = line.strip().split()
+            hostname, state = fields
+
+            db.cursor().execute(
+                "INSERT INTO node_state (hostname, state, last_updated) "
+                "VALUES (%s, %s, %s)",
+                (hostname, state, time)
+            )
+
+            db.commit()
+        
+        print('node state saved!')
+
 
     except Exception as e:
         print(f'Erro ao conectar ao nó {ip}: {str(e)}')
 
-### get the queue info ###
+## get the queue info ###
 try:
     stdin, stdout, stderr = ssh_client.exec_command('squeue --Format=JobID,Name,UserName,State,TimeUsed,NodeList')
     stdout.channel.recv_exit_status()
