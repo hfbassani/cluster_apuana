@@ -1,5 +1,4 @@
 #import subprocess
-import csv
 from dotenv import load_dotenv
 import os
 from datetime import datetime
@@ -9,17 +8,14 @@ from database import DatabaseConnection
 
 load_dotenv()
 
+# connect to postgres database
 db = DatabaseConnection()
 db = db.connect(
     host=os.getenv('DB_HOST'),
     user=os.getenv('DB_USER'),
     password=os.getenv('DB_PASSWORD'),
-    database=os.getenv('DB_NAME')
+    database=os.getenv('DB_NAME'),
 )
-
-print("connectedjhsdjasd")
-
-# db.close()
 
 # nodes ips list
 nodes_ips = [
@@ -34,17 +30,9 @@ nodes_ips = [
     'cluster-node9.cin.ufpe.br', 
     'cluster-node10.cin.ufpe.br'
 ]
+
 user = os.getenv('SSH_USER')  # get user from .env file
 password = os.getenv('SSH_PASSWORD')  # get password from .env file
-
-# .csv file name
-output_csv = './monitor/gpu_log.csv'
-
-# open csv file to add new data
-# with open(output_csv, 'a', newline='') as csvfile:
-# define all headers
-fieldnames = ['index', 'name', 'temperature_gpu', 'memory_used', 'hostname', 'time']
-# writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
 # connect to each node with ssh 
 for ip in nodes_ips:
@@ -63,21 +51,19 @@ for ip in nodes_ips:
         time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         hostname = ip.split('.')[0]
         
-        # read the output and write it to the csv file
+        # read the output and save on postgres database 
         for line in stdout:
             index, name, temperature, memory = line.strip().split(',')
             db.cursor().execute(
-                "INSERT INTO gpu_log (index, name, temperature_gpu, memory_used, hostname, time) "
-                "VALUES (%s, %s, %s, %s, %s, %s)",
-                (index, name, temperature, memory, hostname, time)
+                "INSERT INTO gpu_log (name, temperature_gpu, memory_used, hostname, time) "
+                "VALUES (%s, %s, %s, %s, %s)",
+                (name, temperature, memory, hostname, time)
             )
 
             db.commit()
-            print("foi")
-            # writer.writerow({'index': index, 'name': name, 'temperature_gpu': temperature, 'memory_used': memory, 'hostname': hostname, 'time': time})
     except Exception as e:
         print(f'Erro ao conectar ao nó {ip}: {str(e)}')
 
-db.close()
+db.close() # close the connection
 
 print('gpu state saved!')
