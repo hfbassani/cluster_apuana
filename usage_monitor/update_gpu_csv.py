@@ -61,6 +61,39 @@ for ip in nodes_ips:
             )
 
             db.commit()
+        
+        print('gpu state saved!')
+        
+        stdin, stdout, stderr = ssh_client.exec_command('df -H')
+        stdout.channel.recv_exit_status()
+        time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+        next(stdout)
+
+        for line in stdout:
+            fields = line.strip().split()[:6]
+            print(fields)
+
+            if(len(fields) == 6):
+                filesystem, size, used, avail, usepercent, mounted = fields
+                usepercent = usepercent.replace('%', '')
+                print(filesystem, size, used, avail, usepercent, mounted)
+
+                db.cursor().execute(
+                    "INSERT INTO filesystem_data (filesystem, size, used, avail, usepercent, mounted, time) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    (filesystem, size, used, avail, usepercent, mounted, time)
+                )
+
+                db.commit()
+            
+            else:
+                print('Error getting disk information')
+            
+            print('disk state saved!')
+
+        ssh_client.close()
+
     except Exception as e:
         print(f'Erro ao conectar ao nó {ip}: {str(e)}')
 
