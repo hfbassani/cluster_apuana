@@ -44,7 +44,7 @@ for ip in nodes_ips:
 
         print('connected to node ', ip)
         
-        # Executar o comando nvidia-smi
+        ### get the gpu data ###
         stdin, stdout, stderr = ssh_client.exec_command('nvidia-smi --format=csv,noheader --query-gpu=index,name,temperature.gpu,memory.used')
 
         # get time and hostname
@@ -64,6 +64,7 @@ for ip in nodes_ips:
         
         print('gpu state saved!')
         
+        ### get the disk data ###
         stdin, stdout, stderr = ssh_client.exec_command('df -H')
         stdout.channel.recv_exit_status()
         time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
@@ -92,10 +93,31 @@ for ip in nodes_ips:
             
             print('disk state saved!')
 
-        ssh_client.close()
 
     except Exception as e:
         print(f'Erro ao conectar ao nó {ip}: {str(e)}')
+
+### get the queue info ###
+stdin, stdout, stderr = ssh_client.exec_command('squeue --Format=JobID,Name,UserName,State,TimeUsed,NodeList')
+stdout.channel.recv_exit_status()
+time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+next(stdout)
+
+for line in stdout:
+    fields = line.strip().split()
+    job_id, name, user, state, time_user, nodelist = fields
+    job_id = int(job_id)
+    
+    db.cursor().execute(
+        'INSERT INTO queue (jobid, name, "USER", state, time, nodelist, last_updated) '
+        "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (job_id, name, user, state, time_user, nodelist, time)
+    )
+
+    db.commit()
+
+ssh_client.close()
 
 db.close() # close the connection
 
