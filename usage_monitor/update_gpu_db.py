@@ -5,6 +5,7 @@ import os
 from datetime import date, datetime, timedelta
 import paramiko
 from database import DatabaseConnection
+import re
 
 load_dotenv()
 
@@ -17,21 +18,13 @@ db = db.connect(
     database=os.getenv('DB_NAME'),
 )
 
-# nodes ips list
-nodes_ips = [
-    'cluster-node1.cin.ufpe.br', 
-    'cluster-node2.cin.ufpe.br', 
-    'cluster-node3.cin.ufpe.br', 
-    'cluster-node4.cin.ufpe.br', 
-    'cluster-node5.cin.ufpe.br', 
-    'cluster-node6.cin.ufpe.br', 
-    'cluster-node7.cin.ufpe.br', 
-    'cluster-node8.cin.ufpe.br', 
-    'cluster-node9.cin.ufpe.br', 
-    'cluster-node10.cin.ufpe.br'
-]
-
-manager_ip = ['slurm-manager1.cin.ufpe.br']
+### getting the nodes ips from the database ###
+cur = db.cursor()
+cur.execute("SELECT host_name FROM hosts")
+nodes = cur.fetchall()
+ips = [node[0] for node in nodes]
+nodes_ips = ips[:10]
+manager_ip = ips[-1]
 
 user = os.getenv('SSH_USER')  # get user from .env file
 password = os.getenv('SSH_PASSWORD')  # get password from .env file
@@ -56,6 +49,9 @@ for ip in nodes_ips:
         # read the output and save on postgres database 
         for line in stdout:
             index, name, temperature, memory = line.strip().split(',')
+            memory = memory.replace('MiB', '')
+            memory = int(memory)
+    
             db.cursor().execute(
                 "INSERT INTO gpu_log (name, temperature_gpu, memory_used, hostname, time) "
                 "VALUES (%s, %s, %s, %s, %s)",
@@ -65,7 +61,7 @@ for ip in nodes_ips:
             db.commit()
         
         print('gpu state saved!')
-        
+    
         ### get the disk data ###
         stdin, stdout, stderr = ssh_client.exec_command('df -H')
         stdout.channel.recv_exit_status()
@@ -115,25 +111,36 @@ for ip in nodes_ips:
         
         print('node state saved!')
 
-
     except Exception as e:
-        print(f'Erro ao conectar ao nó {ip}: {str(e)}')
-
+        print(f'Error connecting to node {ip}: {str(e)}')
+    
+    finally:
+        ssh_client.close()
+    
 
 def time_to_seconds(time_str):
     """
         this function converts a time string to seconds
         in case of time passes 24 hours
     """
-    parts = list(map(int, re.split('-|:', time_str)))
-    if len(parts) == 4:  # Se houver dias, horas, minutos e segundos
-        days, hours, minutes, seconds = parts
-    elif len(parts) == 3:  # Se houver apenas horas, minutos e segundos
-        days = 0
-        hours, minutes, seconds = parts
+    # elapse provides this format: 1-06:16:30
+    days_match = re.match(r'(\d+)-(\d+):(\d+):(\d+)', time_str)
+    if days_match:
+        days = days_match.group(1)
+        hours = days_match.group(2)
+        minutes = days_match.group(3)
+        seconds = days_match.group(4)
+
+        format_time = f"{days} days {hours}:{minutes}:{seconds}"
     else:
-        raise ValueError("Formato de tempo inválido")
-    return days * 24 * 3600 + hours * 3600 + minutes * 60 + seconds
+        # No days, split the time string directly into hours, minutes, and seconds
+        hours = time_str.split(':')[0]
+        minutes = time_str.split(':')[1]
+        seconds = time_str.split(':')[2]
+
+        format_time = f"{hours}:{minutes}:{seconds}"
+
+    return format_time
 
 
 def format_time(seconds):
@@ -146,8 +153,13 @@ def format_time(seconds):
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
-### get the queue info ###
+## get the queue info ###
 try:
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(manager_ip, username=user, password=password)
+    print('connected to manager')
+
     stdin, stdout, stderr = ssh_client.exec_command('squeue --Format=JobID,Name,UserName,State,TimeUsed,NodeList')
     stdout.channel.recv_exit_status()
     time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
@@ -156,11 +168,13 @@ try:
 
     for line in stdout:
         fields = line.strip().split()
+        
+        if len(fields) < 6:
+            continue
+        
         job_id, name, user, state, time_user, nodelist = fields
         job_id = int(job_id)
-        time_seconds = time_to_seconds(time_user)
-        time_user = format_time(time_seconds)
-
+        time_user = time_to_seconds(time_user)
         
         db.cursor().execute(
             'INSERT INTO queue (jobid, name, "USER", state, time, nodelist, last_updated) '
@@ -175,57 +189,74 @@ try:
 except Exception as e:
     print(f'Error getting queue information: {str(e)}')
 
-ssh_client.close()
 
-# try:
-    # current_date = datetime.now().date()
-    # zero_time = datetime.combine(current_date, datetime.min.time())
-#     zero_time = zero_time.strftime('%Y-%m-%dT%H:%M:%S')
+try:
+    current_date = datetime.now().date()
+    zero_time = datetime.combine(current_date, datetime.min.time())
+    zero_time = zero_time.strftime('%Y-%m-%dT%H:%M:%S')
 
-#     ssh_client = paramiko.SSHClient()
-#     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-#     ssh_client.connect(manager_ip[0], username=user, password=password)
-#     print('connected to manager')
+    ### get utilization info ###
+    start_date = date(2024, 1, 1)
+    curr_date = date.today()
+    yesterday_date = curr_date - timedelta(days=1)
+    curr_date = curr_date.strftime('%Y-%m-%dT%H:%M:%S')
+    yesterday_date = yesterday_date.strftime('%Y-%m-%dT%H:%M:%S')
 
-#     ### get utilization info ###
-#     start_date = date(2024, 1, 1)
-#     curr_date = date.today()
-#     yesterday_date = curr_date - timedelta(days=1)
-#     curr_date = curr_date.strftime('%Y-%m-%dT%H:%M:%S')
-#     yesterday_date = yesterday_date.strftime('%Y-%m-%dT%H:%M:%S')
+    this_date = start_date.strftime('%Y-%m-%dT%H:%M:%S')
+    stdin, stdout, stderr = ssh_client.exec_command(f'sreport cluster Utilization Start={yesterday_date} End={curr_date} -t Percent -P')
+    output = stdout.readlines()
 
-#     this_date = start_date.strftime('%Y-%m-%dT%H:%M:%S')
-#     stdin, stdout, stderr = ssh_client.exec_command(f'sreport cluster Utilization Start={yesterday_date} End={curr_date} -t Percent -P')
-#     output = stdout.readlines()[5].split('|')
-#     print(output)
-    
-#     print(this_date)
-#     ocupacao = float(output[1].replace('%', ''))
-#     indisponibilidade = float(output[2].replace('%', ''))
-#     ociosidade = float(output[4].replace('%', ''))
-#     print(ocupacao)
+    if len(output) > 5:
+        data_line = output[5].strip()
+        data_parts = data_line.split('|')
+        
+        if len(data_parts) >= 5:
+            ocupacao = float(data_parts[1].replace('%', ''))
+            indisponibilidade = float(data_parts[2].replace('%', ''))
+            ociosidade = float(data_parts[4].replace('%', ''))
+            
+            today = datetime.now().date()
 
-#     db.cursor().execute(
-#         'INSERT INTO utilization (""Ocupação(%)", "Ociosidade(%)", "Indisponibilidade(%)") '
-#         "VALUES (%s, %s, %s, %s)",
-#         (ocupacao, ociosidade, indisponibilidade)
-#     )
+            sql_query = 'INSERT INTO utilization (last_update, ocupation, idle, indisponibility) VALUES (%s, %s, %s, %s)'
+            sql_data = (today, ocupacao, ociosidade, indisponibilidade)
 
-#     db.commit()
-#     print('utilization info saved!')
+            db.cursor().execute(sql_query, sql_data)
+
+            db.commit()
+            print('utilization info saved!')
+        else:
+            print('Error: Unexpected format in data line')
+    else:
+        print('Error: Not enough lines in output')
+
+except Exception as e:
+    print(f'Error connecting to manager: {str(e)}')
 
 ## get job logs info ###
 try:
     current_date = datetime.now().date()
     zero_time = datetime.combine(current_date, datetime.min.time())
-    stdin, stdout, stderr = ssh_client.exec_command('sacct --allusers --parsable --delimiter='','' --format State,JobID,Submit,Start,End,Elapsed,Partition,ReqCPUS,ReqMem,ReqTRES --starttime 2024-01-01T0:00:00')
+    today = datetime.now().date()
+    yesterday_date = today - timedelta(days=1)
+    yesterday_date = yesterday_date.strftime('%Y-%m-%dT%H:%M:%S')
+
+    # Execute the command
+    stdin, stdout, stderr = ssh_client.exec_command(
+        f'sacct --allusers --parsable --delimiter=\",\" --format State,JobID,Submit,Start,End,Elapsed,Partition,ReqCPUS,ReqMem,ReqTRES --starttime {yesterday_date}'
+    )
+
+    # Capture the error output
+    error_output = stderr.read().decode()
+    if error_output:
+        print(f"Error output: {error_output}")
+
+    stdout.channel.recv_exit_status()
     next(stdout)
 
     for line in stdout:
         fields = line.strip().split(',')
-
         for f in range(len(fields)):
-            if fields[f] == None or fields[f] == 'None':
+            if fields[f] in (None, 'None'):
                 fields[f] = zero_time
 
         state, job_id, submit, start, end, elapsed, partition, req_cpus, req_mem, req_gpu = fields[:10]
@@ -233,8 +264,27 @@ try:
         job_id = job_id.split('_')[0]
         req_mem = req_mem.replace('M', '').replace('G', '')
         req_gpu = req_gpu.replace('billing=', '')
-        elepsed_seconds = time_to_seconds(elapsed)
-        elapsed = format_time(elepsed_seconds)
+        elapsed = time_to_seconds(elapsed)
+
+        if end == 'Unknown':
+            end = '1970-01-01T00:00:00'
+        if start == 'Unknown':
+            start = '1970-01-01T00:00:00'
+        
+        if not isinstance(job_id, int):
+            job_id = int(job_id.split('.')[0])
+
+        if req_cpus == '':
+            req_cpus = 0
+        if req_gpu == '':
+            req_gpu = 0
+        if req_mem == '':
+            req_mem = 0
+        
+        if partition == '':
+            partition = 'None'
+
+        print(state, job_id, submit, start, end, elapsed, partition, req_cpus, req_mem, req_gpu)
 
         db.cursor().execute(
             'INSERT INTO job_log (state, jobid, submit, start, "End", elapsed, partition, reqcpus, reqmem, reqgpu) '
@@ -247,6 +297,7 @@ try:
 
 except Exception as e:
     print(f'Error connecting to manager: {str(e)}')
+
 
 ssh_client.close() # close the client
 db.close() # close the connection
