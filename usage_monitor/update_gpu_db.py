@@ -134,9 +134,14 @@ def time_to_seconds(time_str):
         format_time = f"{days} days {hours}:{minutes}:{seconds}"
     else:
         # No days, split the time string directly into hours, minutes, and seconds
-        hours = time_str.split(':')[0]
-        minutes = time_str.split(':')[1]
-        seconds = time_str.split(':')[2]
+        if len(time_str.split(':')) == 2:
+            hours = 0
+            minutes = time_str.split(':')[0]
+            seconds = time_str.split(':')[1]
+        else:
+            hours = time_str.split(':')[0]
+            minutes = time_str.split(':')[1]
+            seconds = time_str.split(':')[2]
 
         format_time = f"{hours}:{minutes}:{seconds}"
 
@@ -162,7 +167,7 @@ try:
 
     stdin, stdout, stderr = ssh_client.exec_command('squeue --Format=JobID,Name,UserName,State,TimeUsed,NodeList')
     stdout.channel.recv_exit_status()
-    time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     next(stdout)
 
@@ -172,6 +177,7 @@ try:
         if len(fields) < 6:
             continue
         
+        print("fields", fields, time)
         job_id, name, user, state, time_user, nodelist = fields
         job_id = int(job_id)
         time_user = time_to_seconds(time_user)
