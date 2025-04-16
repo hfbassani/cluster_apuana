@@ -36,7 +36,7 @@ advisors = df_users["orientador"].unique().tolist()
 print('current_users', current_users)
 print('Length:', len(current_users))
 print('advisors', advisors)
-exit()
+
 # get current users in the slurm database
 current_users_slurmdbd = []
 with os.popen("sacctmgr -nrp show User") as f:
