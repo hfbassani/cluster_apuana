@@ -54,14 +54,21 @@ if len(new_users) > 0:
 	print("new_users = " + str(new_users))
 	
 	for new_user in new_users:
+		new_user = new_user.lower()
 		user_advisor = df_users[df_users["Email"] == new_user]["orientador"].values[0]
-		print(f"Adding user {new_user} for account: {user_advisor}_group")
-		os.system(f"sudo -A sacctmgr -i add user {new_user} account={user_advisor}_group partition=debug,qos=complex")
-		os.system(f"sudo -A sacctmgr -i add user {new_user} account={user_advisor}_group partition=install,qos=simple")
-		os.system(f"sudo -A sacctmgr -i add user {new_user} account={user_advisor}_group partition=short-simple,qos=simple")
-		os.system(f"sudo -A sacctmgr -i add user {new_user} account={user_advisor}_group partition=short-complex,qos=complex")
-		os.system(f"sudo -A sacctmgr -i add user {new_user} account={user_advisor}_group partition=long-simple,qos=simple")
-		os.system(f"sudo -A sacctmgr -i add user {new_user} account={user_advisor}_group partition=long-complex,qos=complex")
+		print(f"Adding user {new_user} for account: {user_advisor}_group") 
+		os.system(f"sudo sacctmgr -i add user {new_user} account={user_advisor}_group partition=debug,install,short-simple,short-complex,long-simple,long-complex")
+
+	os.system("sudo sacctmgr -i modify user set qos=simple where partition=install")
+	os.system("sudo sacctmgr -i modify user set qos=complex where partition=debug")
+
+	os.system("sudo sacctmgr -i modify user set qos=simple where partition=short-simple")
+	os.system("sudo sacctmgr -i modify user set qos=complex where partition=short-complex")
+
+	os.system("sudo sacctmgr -i modify user set qos=simple where partition=long-simple")
+	os.system("sudo sacctmgr -i modify user set qos=complex where partition=long-complex")
+
+	os.system("sudo sacctmgr -i modify user set qos=normal where partition=test") ## para desenvolvedores
 
 else:
 	print('no new users to add')
