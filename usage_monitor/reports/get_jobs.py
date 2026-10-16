@@ -98,7 +98,7 @@ try:
 
     # Execute the command
     stdin, stdout, stderr = ssh_client.exec_command(
-        f'sacct --allusers --parsable --delimiter=\",\" --format State,JobID,Submit,Start,End,Elapsed,Partition,ReqCPUS,ReqMem,ReqTRES --starttime "1970-01-01" --endtime {current_date + timedelta(days=1)}'
+        f'sacct --allusers --parsable --delimiter=\",\" --format State,JobID,Submit,Start,End,Elapsed,Partition,ReqCPUS,ReqMem,ReqTRES --starttime "2026-01-01" --endtime {current_date + timedelta(days=1)}'
     )
 
     # Capture the error output

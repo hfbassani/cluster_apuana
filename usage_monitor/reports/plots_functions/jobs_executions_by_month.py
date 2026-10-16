@@ -50,3 +50,53 @@ def JobsExecutionsByMonth():
     conn.close()
 
     return "Jobs Executions by Month plotted successfully!"
+
+cursor = conn.cursor()
+
+def JobsExecutionsByDay():
+    def fetch_data(query):
+        cursor.execute(query)
+        columns = [desc[0] for desc in cursor.description]
+        data = cursor.fetchall()
+        return pd.DataFrame(data, columns=columns)
+
+    ### Query para quantidade de jobs diários em 2026 ###
+    query_qtd_jobs = """
+        SELECT 
+            DATE_TRUNC('day', submit) AS day_ref,
+            COUNT(*) AS total_jobs
+        FROM job_log
+        WHERE submit >= '2026-01-01 00:00:00' AND submit <= '2026-12-31 23:59:59'
+        GROUP BY day_ref
+        ORDER BY day_ref;
+    """
+
+    df_qtd_jobs = fetch_data(query_qtd_jobs)
+
+    # Convertendo a coluna retornada
+    df_qtd_jobs["day_ref"] = pd.to_datetime(df_qtd_jobs["day_ref"])
+
+    plt.figure(figsize=(10, 5))
+    # Usando a nova coluna day_ref para o plot
+    plt.plot(df_qtd_jobs["day_ref"], df_qtd_jobs["total_jobs"], 
+             marker="o", markersize=3, color="green", linestyle="-", linewidth=1.5)
+    
+    plt.xlabel("Data")
+    plt.ylabel("Quantidade de Jobs")
+    plt.title("Quantidade Diária de Jobs Executados (2026)")
+    
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    
+    # Salvando antes de mostrar para evitar arquivos vazios
+    plt.savefig('jobs_executions_by_day_2026.png')
+    plt.show()
+
+    cursor.close()
+    conn.close()
+
+    return "Jobs Executions by Day (2026) plotted successfully!"
+
+if __name__ == "__main__":
+    print(JobsExecutionsByDay())
